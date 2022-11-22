@@ -28,17 +28,38 @@ pub fn convert_db_driver_to_db_impl(v: DatabaseDriver) -> DBImpl {
     }
 }
 
-const EXAMPLE_DATABASE_CONFIG: &str = r#"[Database]
-# Valid driver types are: "MySQL", "Postgres" and "SQLite"
-Driver = "MySQL"
+const EXAMPLE_DATABASE_CONFIG: &str = r#"
+# Example database configuration for each supported database.
+# Uncomment the database you'd like to use.
 
-# Name of the database. 
-Name = "dbname"
+[Database]
+# -------------------------------
+# Example SQLite configuration
+# -------------------------------
+Driver = "SQLite"
+ 
+# Filename / path of the sqlite database 
+Filename = ""
 
-Host = "127.0.0.1"
-Port = 3306
-User = "dbuser"
-Password = "super-secure-password"
+# -------------------------------
+# Example MySQL configuration
+# -------------------------------
+# Driver = "MySQL"
+# Name = "dbname"
+# Host = "127.0.0.1"
+# Port = 3306
+# User = "dbuser"
+# Password = "super-secure-password"
+
+# -------------------------------
+# Example Postgres configuration
+# -------------------------------
+# Driver = "Postgres"
+# Name = "dbname"
+# Host = "127.0.0.1"
+# Port = 5432
+# User = "dbuser"
+# Password = "super-secure-password"
 "#;
 
 #[cfg(test)]
@@ -75,7 +96,7 @@ Helper method to deserialize an existing database configuration file
  */
 pub fn deserialize_db_conf(path: &Path) -> anyhow::Result<DatabaseConfig> {
     let db_conf_toml =
-        read_to_string(&path).with_context(|| "Couldn't read database configuration file")?;
+        read_to_string(path).with_context(|| "Couldn't read database configuration file")?;
 
     let db_conf = toml::from_str::<DatabaseConfigFile>(db_conf_toml.as_str())
         .with_context(|| "Couldn't deserialize database configuration file")?
