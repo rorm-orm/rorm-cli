@@ -1,9 +1,9 @@
 [package]
 name = "rorm-cli"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 authors = ["myOmikron <git@omikron.dev>"]
-repository = "https://github.com/myOmikron/drorm"
+repository = "https://github.com/rorm-orm/rorm-cli"
 keywords = ["cli", "database", "migrator", "orm"]
 categories = ["command-line-utilities", "database"]
 homepage = "https://rorm.rs"
@@ -13,8 +13,8 @@ description = "The cli tool for managing rorm applications."
 
 [dependencies]
 # Internal dependencies
-rorm-sql = { version = "~0.2", path = "../rorm-sql" }
-rorm-declaration = { version = "~0.2", path = "../rorm-declaration" }
+rorm-sql = { version = "~0.3", path = "../rorm-sql" }
+rorm-declaration = { version = "~0.3", path = "../rorm-declaration" }
 
 # CLI parsing tool
 clap = { version = "~4.0" }
@@ -28,7 +28,7 @@ toml = { version = "~0.5" }
 anyhow = { version = "~1.0" }
 
 # Regex
-regex = { version = "~1.6" }
+regex = { version = "~1.7" }
 
 # Lazy implementation
 once_cell = { version = "~1.16" }
@@ -37,7 +37,7 @@ once_cell = { version = "~1.16" }
 sqlx = { version = "~0.6" }
 
 # Runtime
-tokio = { version = "~1.21" }
+tokio = { version = "~1.22" }
 
 # Enum simplification
 strum = { version = "~0.24" }
