@@ -1,3 +1,10 @@
+[workspace]
+members = [
+    ".",
+    "rorm-declaration",
+    "rorm-sql",
+]
+
 [package]
 name = "rorm-cli"
 version = "0.3.0"
@@ -13,8 +20,8 @@ description = "The cli tool for managing rorm applications."
 
 [dependencies]
 # Internal dependencies
-rorm-sql = { version = "~0.3", path = "../rorm-sql" }
-rorm-declaration = { version = "~0.3", path = "../rorm-declaration" }
+rorm-declaration = { version = "~0.3", path = "rorm-declaration" }
+rorm-sql = { version = "~0.3", path = "rorm-sql" }
 
 # CLI parsing tool
 clap = { version = "~4.0" }
