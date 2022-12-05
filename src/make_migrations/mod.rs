@@ -381,6 +381,37 @@ pub fn run_make_migrations(options: MakeMigrationsOptions) -> anyhow::Result<()>
             println!("No models found.");
         // New migration must be generated as no migration exists
         } else {
+            let mut operations = vec![];
+            let mut references: HashMap<String, Field> = HashMap::new();
+
+            operations.extend(internal_models.models.iter().map(|x| {
+                let mut normal_fields = vec![];
+
+                for y in &x.fields {
+                    if y.annotations
+                        .iter()
+                        .any(|z| z.eq_shallow(&Annotation::ForeignKey(Default::default())))
+                    {
+                        references.insert(x.name.clone(), y.clone());
+                    } else {
+                        normal_fields.push(y.clone());
+                    }
+                }
+
+                let o = Operation::CreateModel {
+                    name: x.name.clone(),
+                    fields: normal_fields,
+                };
+                println!("Created model {}", x.name);
+                o
+            }));
+
+            operations.extend(
+                references
+                    .into_iter()
+                    .map(|(model, field)| Operation::CreateField { model, field }),
+            );
+
             new_migration = Some(Migration {
                 hash: h.to_string(),
                 initial: true,
@@ -391,27 +422,7 @@ pub fn run_make_migrations(options: MakeMigrationsOptions) -> anyhow::Result<()>
                 },
                 dependency: None,
                 replaces: vec![],
-                operations: internal_models
-                    .models
-                    .iter()
-                    .map(|x| {
-                        let o = Operation::CreateModel {
-                            name: x.name.clone(),
-                            fields: x
-                                .fields
-                                .iter()
-                                .map(|y| Field {
-                                    name: y.name.clone(),
-                                    db_type: y.db_type,
-                                    annotations: y.annotations.clone(),
-                                    source_defined_at: None,
-                                })
-                                .collect(),
-                        };
-                        println!("Created model {}", x.name);
-                        o
-                    })
-                    .collect(),
+                operations,
             });
         }
     }
