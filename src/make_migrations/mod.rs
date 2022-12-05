@@ -5,7 +5,7 @@ use std::hash::{Hash, Hasher};
 use std::path::Path;
 
 use anyhow::{anyhow, Context};
-use rorm_declaration::imr::{Field, InternalModelFormat, Model};
+use rorm_declaration::imr::{Annotation, Field, InternalModelFormat, Model};
 use rorm_declaration::migration::{Migration, Operation};
 
 use crate::linter;
@@ -220,14 +220,34 @@ pub fn run_make_migrations(options: MakeMigrationsOptions) -> anyhow::Result<()>
             })
         }
 
+        let mut references: HashMap<String, Field> = HashMap::new();
+
         // Create migration operations for new models
         new_models.iter().for_each(|x| {
+            let mut normal_fields = vec![];
+
+            for y in &x.fields {
+                if y.annotations
+                    .iter()
+                    .any(|z| z.eq_shallow(&Annotation::ForeignKey(Default::default())))
+                {
+                    references.insert(x.name.clone(), y.clone());
+                } else {
+                    normal_fields.push(y.clone());
+                }
+            }
+
             op.push(Operation::CreateModel {
                 name: x.name.clone(),
-                fields: x.fields.clone(),
+                fields: normal_fields,
             });
             println!("Created model {}", x.name);
         });
+
+        // Create referencing fields for new models
+        for (model, field) in references {
+            op.push(Operation::CreateField { model, field });
+        }
 
         // Create migration operations for deleted models
         deleted_models.iter().for_each(|x| {
