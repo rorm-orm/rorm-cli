@@ -68,7 +68,7 @@ pub async fn apply_migration(
 
     let v: &[&[rorm_sql::value::Value]] = &[&[rorm_sql::value::Value::I32(migration.id as i32)]];
     let (query_string, bind_params) = dialect
-        .insert(last_migration_table_name, &["migration_id"], v)
+        .insert(last_migration_table_name, &["migration_id"], v, None)
         .rollback_transaction()
         .build();
 
