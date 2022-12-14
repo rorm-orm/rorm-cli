@@ -382,7 +382,7 @@ pub fn run_make_migrations(options: MakeMigrationsOptions) -> anyhow::Result<()>
         // New migration must be generated as no migration exists
         } else {
             let mut operations = vec![];
-            let mut references: HashMap<String, Field> = HashMap::new();
+            let mut references: HashMap<String, Vec<Field>> = HashMap::new();
 
             operations.extend(internal_models.models.iter().map(|x| {
                 let mut normal_fields = vec![];
@@ -392,7 +392,10 @@ pub fn run_make_migrations(options: MakeMigrationsOptions) -> anyhow::Result<()>
                         .iter()
                         .any(|z| z.eq_shallow(&Annotation::ForeignKey(Default::default())))
                     {
-                        references.insert(x.name.clone(), y.clone());
+                        references
+                            .entry(x.name.clone())
+                            .or_default()
+                            .push(y.clone());
                     } else {
                         normal_fields.push(y.clone());
                     }
@@ -406,11 +409,15 @@ pub fn run_make_migrations(options: MakeMigrationsOptions) -> anyhow::Result<()>
                 o
             }));
 
-            operations.extend(
-                references
-                    .into_iter()
-                    .map(|(model, field)| Operation::CreateField { model, field }),
-            );
+            operations.extend(references.into_iter().flat_map(|(model, fields)| {
+                fields
+                    .iter()
+                    .map(|field| Operation::CreateField {
+                        model: model.clone(),
+                        field: field.clone(),
+                    })
+                    .collect::<Vec<Operation>>()
+            }));
 
             new_migration = Some(Migration {
                 hash: h.to_string(),
