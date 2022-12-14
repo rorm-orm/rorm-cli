@@ -7,7 +7,7 @@ members = [
 
 [package]
 name = "rorm-cli"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 authors = ["myOmikron <git@omikron.dev>"]
 repository = "https://github.com/rorm-orm/rorm-cli"
