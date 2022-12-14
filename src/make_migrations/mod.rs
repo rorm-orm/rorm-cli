@@ -220,7 +220,7 @@ pub fn run_make_migrations(options: MakeMigrationsOptions) -> anyhow::Result<()>
             })
         }
 
-        let mut references: HashMap<String, Field> = HashMap::new();
+        let mut references: HashMap<String, Vec<Field>> = HashMap::new();
 
         // Create migration operations for new models
         new_models.iter().for_each(|x| {
@@ -231,7 +231,10 @@ pub fn run_make_migrations(options: MakeMigrationsOptions) -> anyhow::Result<()>
                     .iter()
                     .any(|z| z.eq_shallow(&Annotation::ForeignKey(Default::default())))
                 {
-                    references.insert(x.name.clone(), y.clone());
+                    references
+                        .entry(x.name.clone())
+                        .or_default()
+                        .push(y.clone());
                 } else {
                     normal_fields.push(y.clone());
                 }
@@ -245,8 +248,13 @@ pub fn run_make_migrations(options: MakeMigrationsOptions) -> anyhow::Result<()>
         });
 
         // Create referencing fields for new models
-        for (model, field) in references {
-            op.push(Operation::CreateField { model, field });
+        for (model, fields) in references {
+            for field in fields {
+                op.push(Operation::CreateField {
+                    model: model.clone(),
+                    field,
+                });
+            }
         }
 
         // Create migration operations for deleted models
