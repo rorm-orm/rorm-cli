@@ -49,6 +49,9 @@ tokio = { version = "~1.23" }
 # Enum simplification
 strum = { version = "~0.24" }
 
+# Read passwords from cli
+rpassword = { version = "~7.2" }
+
 [dev-dependencies]
 # Creating and clearing temporary directories
 temp-dir = { version = "~0.1" }
