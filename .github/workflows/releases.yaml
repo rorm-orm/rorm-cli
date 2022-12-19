@@ -4,10 +4,15 @@ on:
     tags:
       - "*"
 
+defaults:
+  run:
+    shell: sh
+
 jobs:
   install:
     name: Install rorm-cli on local runners
     strategy:
+      fail-fast: false
       matrix:
         os:
           - [ self-hosted, linux, x64 ]
