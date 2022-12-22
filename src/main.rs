@@ -167,7 +167,7 @@ enum Commands {
 }
 
 #[derive(Parser)]
-#[clap(version = "0.1.0", about = "CLI tool for rorm", long_about = None)]
+#[clap(version, about = "CLI tool for rorm", long_about = None)]
 #[clap(arg_required_else_help = true)]
 #[clap(name = "rorm-cli")]
 struct Cli {
