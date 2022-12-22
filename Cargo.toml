@@ -7,7 +7,7 @@ members = [
 
 [package]
 name = "rorm-cli"
-version = "0.4.1"
+version = "0.5.0"
 edition = "2021"
 authors = ["myOmikron <git@omikron.dev>"]
 repository = "https://github.com/rorm-orm/rorm-cli"
@@ -21,7 +21,7 @@ description = "The cli tool for managing rorm applications."
 [dependencies]
 # Internal dependencies
 rorm-declaration = { version = "~0.3", path = "rorm-declaration" }
-rorm-sql = { version = "~0.4", path = "rorm-sql" }
+rorm-sql = { version = "~0.5", path = "rorm-sql" }
 
 # CLI parsing tool
 clap = { version = "~4.0" }
