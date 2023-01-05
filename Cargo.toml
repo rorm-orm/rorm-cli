@@ -21,13 +21,13 @@ description = "The cli tool for managing rorm applications."
 [dependencies]
 # Internal dependencies
 rorm-declaration = { version = "~0.3", path = "rorm-declaration" }
-rorm-sql = { version = "~0.5", path = "rorm-sql" }
+rorm-sql = { version = "~0.5", path = "rorm-sql", features = ["sqlite", "mysql", "postgres"] }
 
 # CLI parsing tool
-clap = { version = "~4.0" }
+clap = { version = "~4.0", features = ["derive"] }
 
 # Serialization library
-serde = { version = "~1.0" }
+serde = { version = "~1.0", features = ["derive"] }
 serde_json = { version = "~1.0" }
 toml = { version = "~0.5" }
 
@@ -38,13 +38,13 @@ anyhow = { version = "~1.0" }
 regex = { version = "~1.7" }
 
 # Lazy implementation
-once_cell = { version = "~1.16" }
+once_cell = { version = "~1.17" }
 
 # SQL database abstraction
-sqlx = { version = "~0.6" }
+sqlx = { version = "~0.6", features = ["mysql", "postgres", "sqlite", "any", "chrono", "runtime-tokio-rustls"] }
 
 # Runtime
-tokio = { version = "~1.23" }
+tokio = { version = "~1.23", features = ["macros"] }
 
 # Enum simplification
 strum = { version = "~0.24" }
@@ -56,22 +56,3 @@ rpassword = { version = "~7.2" }
 # Creating and clearing temporary directories
 temp-dir = { version = "~0.1" }
 
-[features]
-default = [
-    "sqlx/runtime-tokio-rustls",
-    "sqlx/mysql",
-    "sqlx/sqlite",
-    "sqlx/postgres",
-    "sqlx/any",
-    "sqlx/chrono",
-
-    "tokio/macros",
-
-    "serde/derive",
-
-    "clap/derive",
-
-    "rorm-sql/sqlite",
-    "rorm-sql/postgres",
-    "rorm-sql/mysql",
-]
