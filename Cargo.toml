@@ -44,7 +44,7 @@ once_cell = { version = "~1.17" }
 sqlx = { version = "~0.6", features = ["mysql", "postgres", "sqlite", "any", "chrono", "runtime-tokio-rustls"] }
 
 # Runtime
-tokio = { version = "~1.23", features = ["macros"] }
+tokio = { version = "~1.24", features = ["macros"] }
 
 # Enum simplification
 strum = { version = "~0.24" }
@@ -55,4 +55,3 @@ rpassword = { version = "~7.2" }
 [dev-dependencies]
 # Creating and clearing temporary directories
 temp-dir = { version = "~0.1" }
-
