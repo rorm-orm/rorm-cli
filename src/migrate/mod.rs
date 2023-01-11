@@ -117,6 +117,13 @@ pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
 
     let db_conf = deserialize_db_conf(db_conf_path)?;
 
+    if let DatabaseDriver::SQLite { filename } = &db_conf.driver {
+        if filename.is_empty() {
+            println!("Invalid configuration: Filename for sqlite is empty");
+            return Ok(());
+        }
+    }
+
     let p = Path::new(options.migration_dir.as_str());
     if !p.exists() || p.is_file() {
         println!(
