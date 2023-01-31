@@ -29,20 +29,18 @@ pub async fn squash_migrations(
 
     if !first {
         println!(
-            "Could not find migration {}.\n\n\
+            "Could not find migration {first_migration}.\n\n\
             This could be due to a missing migration or because the \n\
-            migration is currently a squashed migration",
-            first_migration
+            migration is currently a squashed migration"
         );
         return Ok(());
     }
 
     if !last {
         println!(
-            "Could not find migration {}.\n\n\
+            "Could not find migration {last_migration}.\n\n\
             This could be due to a missing migration or because the \n\
-            migration is currently a squashed migration",
-            last_migration
+            migration is currently a squashed migration"
         );
         return Ok(());
     }

@@ -1,6 +1,7 @@
 [workspace]
 members = [
     ".",
+    "rorm-cli-lib",
     "rorm-declaration",
     "rorm-sql",
 ]

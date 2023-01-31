@@ -20,7 +20,7 @@ pub struct DatabaseConfigFile {
 /**
 Converts the [DatabaseDriver] to [DBImpl]
 */
-pub fn convert_db_driver_to_db_impl(v: DatabaseDriver) -> DBImpl {
+pub(crate) fn convert_db_driver_to_db_impl(v: DatabaseDriver) -> DBImpl {
     match v {
         DatabaseDriver::SQLite { .. } => DBImpl::SQLite,
         DatabaseDriver::Postgres { .. } => DBImpl::Postgres,
@@ -76,14 +76,11 @@ mod test {
 /**
 Helper method to create a dummy database configuration file
  */
-pub fn create_db_config(path: &Path) -> anyhow::Result<()> {
-    let fh = File::create(path).with_context(|| format!("Couldn't open {:?} for writing", path))?;
+pub(crate) fn create_db_config(path: &Path) -> anyhow::Result<()> {
+    let fh = File::create(path).with_context(|| format!("Couldn't open {path:?} for writing"))?;
 
-    writeln!(&fh, "{}", EXAMPLE_DATABASE_CONFIG).with_context(|| {
-        format!(
-            "Couldn't write serialized database configuration to {:?}",
-            path
-        )
+    writeln!(&fh, "{EXAMPLE_DATABASE_CONFIG}").with_context(|| {
+        format!("Couldn't write serialized database configuration to {path:?}",)
     })?;
 
     Ok(())

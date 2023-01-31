@@ -1,9 +1,9 @@
+use std::io;
+use std::io::Write;
+
 pub mod bind;
 pub mod migrations;
 pub mod re;
-
-use std::io;
-use std::io::Write;
 
 #[macro_export]
 macro_rules! log_sql {
@@ -16,9 +16,9 @@ macro_rules! log_sql {
     }};
 }
 
-pub fn question(question: &str) -> bool {
+pub(crate) fn question(question: &str) -> bool {
     loop {
-        print!("{} [yN] ", question);
+        print!("{question} [yN] ");
         io::stdout().flush().expect("Flushing stdout should work!");
         let mut input = String::new();
         match io::stdin().read_line(&mut input) {

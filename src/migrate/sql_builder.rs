@@ -1,6 +1,5 @@
 use rorm_declaration::migration::{Migration, Operation};
-use rorm_sql::alter_table::AlterTable;
-use rorm_sql::alter_table::AlterTableOperation;
+use rorm_sql::alter_table::{AlterTable, AlterTableOperation};
 use rorm_sql::create_table::CreateTable;
 use rorm_sql::drop_table::DropTable;
 use rorm_sql::DBImpl;
@@ -160,19 +159,19 @@ pub async fn migration_to_sql<'a>(
             } => match db_impl {
                 DBImpl::SQLite => {
                     if do_log {
-                        println!("{}", sqlite);
+                        println!("{sqlite}");
                     }
                     sqlx::query(sqlite).execute(&mut *tx).await?;
                 }
                 DBImpl::Postgres => {
                     if do_log {
-                        println!("{}", postgres);
+                        println!("{postgres}");
                     }
                     sqlx::query(postgres).execute(&mut *tx).await?;
                 }
                 DBImpl::MySQL => {
                     if do_log {
-                        println!("{}", mysql);
+                        println!("{mysql}");
                     }
                     sqlx::query(mysql).execute(&mut *tx).await?;
                 }

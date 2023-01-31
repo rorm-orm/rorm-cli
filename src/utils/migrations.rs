@@ -24,7 +24,7 @@ pub fn convert_migration_to_file(migration: Migration, path: &Path) -> anyhow::R
             path.file_name()
         )
     })?;
-    write!(output, "{}", toml_str).with_context(|| "Error while writing to migration file")?;
+    write!(output, "{toml_str}").with_context(|| "Error while writing to migration file")?;
 
     Ok(())
 }
