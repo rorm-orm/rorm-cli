@@ -1,6 +1,3 @@
-pub mod config;
-pub mod sql_builder;
-
 use std::cmp::Ordering;
 use std::path::Path;
 
@@ -22,6 +19,9 @@ use crate::migrate::config::{convert_db_driver_to_db_impl, create_db_config, des
 use crate::migrate::sql_builder::migration_to_sql;
 use crate::utils::bind;
 use crate::utils::migrations::get_existing_migrations;
+
+pub mod config;
+pub mod sql_builder;
 
 /**
 Options for running migrations
@@ -73,7 +73,7 @@ pub async fn apply_migration(
         .build();
 
     if do_log {
-        println!("{}", query_string);
+        println!("{query_string}");
     }
 
     let mut q = query(query_string.as_str());
@@ -83,18 +83,14 @@ pub async fn apply_migration(
     }
     q.execute(&mut tx).await.with_context(|| {
         format!(
-            "Error while inserting applied migration {} into last migration table",
-            last_migration_table_name
+            "Error while inserting applied migration {last_migration_table_name} into last migration table",
         )
     })?;
 
     println!("Applied migration {:04}_{}", migration.id, migration.name);
 
     tx.commit().await.with_context(|| {
-        format!(
-            "Error while committing transaction {}",
-            last_migration_table_name
-        )
+        format!("Error while committing transaction {last_migration_table_name}",)
     })?;
 
     Ok(())
@@ -116,6 +112,13 @@ pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
     }
 
     let db_conf = deserialize_db_conf(db_conf_path)?;
+
+    if let DatabaseDriver::SQLite { filename } = &db_conf.driver {
+        if filename.is_empty() {
+            println!("Invalid configuration: Filename for sqlite is empty");
+            return Ok(());
+        }
+    }
 
     let p = Path::new(options.migration_dir.as_str());
     if !p.exists() || p.is_file() {
@@ -261,8 +264,7 @@ pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
                 if let Some(apply_until) = options.apply_until {
                     if migration.id == apply_until {
                         println!(
-                            "Applied all migrations until (inclusive) migration {:04}",
-                            apply_until
+                            "Applied all migrations until (inclusive) migration {apply_until:04}"
                         );
                         break;
                     }
@@ -300,13 +302,11 @@ pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
                             Ordering::Equal => {
                                 if apply {
                                     println!(
-                                        "Applied all migrations until (inclusive) migration {:04}",
-                                        apply_until
+                                        "Applied all migrations until (inclusive) migration {apply_until:04}"
                                     );
                                 } else {
                                     println!(
-                                        "All migrations until (inclusive) migration {:04} have already been applied",
-                                        apply_until
+                                        "All migrations until (inclusive) migration {apply_until:04} have already been applied"
                                     );
                                 }
                                 break;
@@ -320,12 +320,10 @@ pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
                 // If last applied migration could not be found in existing migrations,
                 // panic as there's no way to determine what to do next
                 return Err(anyhow!(
-                    r#"Last applied migration {} was not found in current migrations.
+                    r#"Last applied migration {id} was not found in current migrations.
  
 Can not proceed any further without damaging data.
-To correct, empty the {} table or reset the whole database."#,
-                    id,
-                    last_migration_table_name
+To correct, empty the {last_migration_table_name} table or reset the whole database."#,
                 ));
             }
         }

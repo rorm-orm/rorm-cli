@@ -5,8 +5,8 @@ use std::process::exit;
 
 use rorm_declaration::config::{DatabaseConfig, DatabaseDriver};
 
+use crate::entry::InitDriver;
 use crate::migrate::config::DatabaseConfigFile;
-use crate::InitDriver;
 
 pub fn init(database_configuration: String, driver: InitDriver, force: bool) -> anyhow::Result<()> {
     let p = Path::new(&database_configuration);
