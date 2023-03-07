@@ -1,14 +1,13 @@
 [workspace]
 members = [
     ".",
-    "rorm-cli-lib",
     "rorm-declaration",
     "rorm-sql",
 ]
 
 [package]
 name = "rorm-cli"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 authors = ["myOmikron <git@omikron.dev>"]
 repository = "https://github.com/rorm-orm/rorm-cli"
@@ -19,40 +18,54 @@ documentation = "https://docs.rorm.rs"
 license = "MIT"
 description = "The cli tool for managing rorm applications."
 
+[lib]
+path = "src/lib.rs"
+name = "rorm_cli"
+
+[[bin]]
+name = "rorm-cli"
+path = "src/main.rs"
+
 [dependencies]
 # Internal dependencies
 rorm-declaration = { version = "~0.3", path = "rorm-declaration" }
 rorm-sql = { version = "~0.5", path = "rorm-sql", features = ["sqlite", "mysql", "postgres"] }
 
 # CLI parsing tool
-clap = { version = "~4.0", features = ["derive"] }
+clap = { version = "~4", features = ["derive"] }
 
 # Serialization library
-serde = { version = "~1.0", features = ["derive"] }
-serde_json = { version = "~1.0" }
-toml = { version = "~0.5" }
+serde = { version = "~1", features = ["derive"] }
+serde_json = { version = "~1" }
+toml = { version = "~0.7" }
 
 # Generic error package
-anyhow = { version = "~1.0" }
+anyhow = { version = "~1" }
 
 # Regex
-regex = { version = "~1.7" }
+regex = { version = "~1" }
 
 # Lazy implementation
-once_cell = { version = "~1.17" }
+once_cell = { version = "~1" }
 
 # SQL database abstraction
 sqlx = { version = "~0.6", features = ["mysql", "postgres", "sqlite", "any", "chrono", "runtime-tokio-rustls"] }
 
 # Runtime
-tokio = { version = "~1.24", features = ["macros"] }
+tokio = { version = ">=1.23.1", features = ["macros"] }
 
 # Enum simplification
 strum = { version = "~0.24" }
 
 # Read passwords from cli
-rpassword = { version = "~7.2" }
+rpassword = { version = "~7" }
 
 [dev-dependencies]
 # Creating and clearing temporary directories
 temp-dir = { version = "~0.1" }
+
+[profile.fat-lto]
+inherits = "release"
+opt-level = "s"
+lto = "fat"
+strip = true
