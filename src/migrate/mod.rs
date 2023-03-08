@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::path::Path;
 
 use anyhow::{anyhow, Context};
-use rorm_declaration::config::DatabaseDriver;
+use rorm_declaration::config::{DatabaseConfig, DatabaseDriver};
 use rorm_declaration::imr::{Annotation, DbType};
 use rorm_declaration::migration::Migration;
 use rorm_sql::create_table::CreateTable;
@@ -96,41 +96,24 @@ pub async fn apply_migration(
     Ok(())
 }
 
-/**
-Applies migrations on the given database
-*/
-pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
-    let db_conf_path = Path::new(options.database_config.as_str());
-
-    if !&db_conf_path.exists() {
-        println!(
-            "Couldn't find the database configuration file, created {} and exiting",
-            options.database_config.as_str()
-        );
-        create_db_config(db_conf_path)?;
-        return Ok(());
-    }
-
-    let db_conf = deserialize_db_conf(db_conf_path)?;
-
-    if let DatabaseDriver::SQLite { filename } = &db_conf.driver {
-        if filename.is_empty() {
-            println!("Invalid configuration: Filename for sqlite is empty");
-            return Ok(());
-        }
-    }
-
-    let p = Path::new(options.migration_dir.as_str());
+/// Applies migrations on the given database with a given driver
+pub async fn run_migrate_custom(
+    db_conf: DatabaseConfig,
+    migration_dir: String,
+    log_sql: bool,
+    apply_until: Option<u16>,
+) -> anyhow::Result<()> {
+    let p = Path::new(migration_dir.as_str());
     if !p.exists() || p.is_file() {
         println!(
             "Couldn't find the migration directory in {} \n\n\
             You can specify an alternative path with --migration-dir <PATH>",
-            options.migration_dir.as_str()
+            migration_dir.as_str()
         );
         return Ok(());
     }
 
-    let existing_migrations = get_existing_migrations(options.migration_dir.as_str())
+    let existing_migrations = get_existing_migrations(migration_dir.as_str())
         .with_context(|| "Couldn't retrieve existing migrations")?;
 
     if existing_migrations.is_empty() {
@@ -214,7 +197,7 @@ pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
         .with_context(|| "Could not create transaction")?;
 
     for (query_string, bind_params) in statements {
-        if options.log_queries {
+        if log_sql {
             println!("{}", query_string.as_str());
         }
 
@@ -237,7 +220,7 @@ pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
                 "SELECT migration_id FROM {} ORDER BY id DESC LIMIT 1;",
                 &last_migration_table_name
             ),
-            options.log_queries
+            log_sql
         )
         .as_str(),
     )
@@ -257,11 +240,11 @@ pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
                     migration,
                     &pool,
                     last_migration_table_name,
-                    options.log_queries,
+                    log_sql,
                 )
                 .await?;
 
-                if let Some(apply_until) = options.apply_until {
+                if let Some(apply_until) = apply_until {
                     if migration.id == apply_until {
                         println!(
                             "Applied all migrations until (inclusive) migration {apply_until:04}"
@@ -283,7 +266,7 @@ pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
                             migration,
                             &pool,
                             last_migration_table_name,
-                            options.log_queries,
+                            log_sql,
                         )
                         .await?;
                         continue;
@@ -297,7 +280,7 @@ pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
                         }
                     }
 
-                    if let Some(apply_until) = options.apply_until {
+                    if let Some(apply_until) = apply_until {
                         match migration.id.cmp(&apply_until) {
                             Ordering::Equal => {
                                 if apply {
@@ -330,4 +313,35 @@ To correct, empty the {last_migration_table_name} table or reset the whole datab
     }
 
     Ok(())
+}
+
+/// Applies migrations on the given database
+pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
+    let db_conf_path = Path::new(options.database_config.as_str());
+
+    if !&db_conf_path.exists() {
+        println!(
+            "Couldn't find the database configuration file, created {} and exiting",
+            options.database_config.as_str()
+        );
+        create_db_config(db_conf_path)?;
+        return Ok(());
+    }
+
+    let db_conf = deserialize_db_conf(db_conf_path)?;
+
+    if let DatabaseDriver::SQLite { filename } = &db_conf.driver {
+        if filename.is_empty() {
+            println!("Invalid configuration: Filename for sqlite is empty");
+            return Ok(());
+        }
+    }
+
+    run_migrate_custom(
+        db_conf,
+        options.migration_dir,
+        options.log_queries,
+        options.apply_until,
+    )
+    .await
 }

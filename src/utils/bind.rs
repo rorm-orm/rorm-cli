@@ -40,8 +40,10 @@ where
             NullType::NaiveTime => query.bind(None::<NaiveTime>),
             NullType::NaiveDate => query.bind(None::<NaiveDate>),
             NullType::NaiveDateTime => query.bind(None::<NaiveDateTime>),
+            NullType::Choice => query,
         },
         value::Value::Ident(_) => query,
         value::Value::Column { .. } => query,
+        value::Value::Choice(_) => query,
     }
 }
