@@ -29,7 +29,7 @@ path = "src/main.rs"
 [dependencies]
 # Internal dependencies
 rorm-declaration = { version = "~0.3", path = "rorm-declaration" }
-rorm-sql = { version = "~0.5", path = "rorm-sql", features = ["sqlite", "mysql", "postgres"] }
+rorm-sql = { version = "~0.6", path = "rorm-sql", features = ["sqlite", "mysql", "postgres"] }
 
 # CLI parsing tool
 clap = { version = "~4", features = ["derive"] }
