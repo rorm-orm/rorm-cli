@@ -1,5 +1,6 @@
-/// Exports for [rorm-cli-lib].
-///
+/// Reexport the config
+pub use rorm_declaration::config;
+
 /// Reexports for executing the defined cli parser via another
 pub mod entry;
 /// This module is used for creating a configuration file that can be used by the
