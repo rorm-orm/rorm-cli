@@ -7,7 +7,7 @@ members = [
 
 [package]
 name = "rorm-cli"
-version = "0.7.2"
+version = "0.7.3"
 edition = "2021"
 authors = ["myOmikron <git@omikron.dev>"]
 repository = "https://github.com/rorm-orm/rorm-cli"
@@ -49,10 +49,10 @@ regex = { version = "~1" }
 once_cell = { version = "~1" }
 
 # SQL database abstraction
-sqlx = { version = "~0.6", features = ["mysql", "postgres", "sqlite", "any", "chrono", "runtime-tokio-rustls"] }
+sqlx = { version = "~0.6", features = ["mysql", "postgres", "sqlite", "any", "chrono"] }
 
 # Runtime
-tokio = { version = ">=1.23.1", features = ["macros"] }
+tokio = { version = ">=1.23.1", features = ["macros"], optional = true }
 
 # Enum simplification
 strum = { version = "~0.24" }
@@ -63,6 +63,9 @@ rpassword = { version = "~7" }
 [dev-dependencies]
 # Creating and clearing temporary directories
 temp-dir = { version = "~0.1" }
+
+[features]
+default = ["sqlx/runtime-tokio-rustls", "dep:tokio"]
 
 [profile.fat-lto]
 inherits = "release"
