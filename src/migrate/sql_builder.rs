@@ -1,11 +1,11 @@
+use rorm_db::executor::{Executor, Nothing};
+use rorm_db::transaction::Transaction;
 use rorm_declaration::migration::{Migration, Operation};
 use rorm_sql::alter_table::{AlterTable, AlterTableOperation};
 use rorm_sql::create_table::CreateTable;
 use rorm_sql::drop_table::DropTable;
+use rorm_sql::value::Value;
 use rorm_sql::DBImpl;
-use sqlx::{Any, Transaction};
-
-use crate::utils::bind;
 
 /**
 Helper method to convert a migration to a transaction string
@@ -14,7 +14,7 @@ Helper method to convert a migration to a transaction string
 `migration`: [&Migration]: Reference to the migration that should be converted.
 */
 pub async fn migration_to_sql<'a>(
-    tx: &'a mut Transaction<'_, Any>,
+    tx: &'a mut Transaction,
     db_impl: DBImpl,
     migration: &'a Migration,
     do_log: bool,
@@ -36,15 +36,7 @@ pub async fn migration_to_sql<'a>(
                 let statements = create_table.build()?;
 
                 for (query_string, query_bind_params) in statements {
-                    if do_log {
-                        println!("{}", query_string.as_str());
-                    }
-
-                    let mut q = sqlx::query(query_string.as_str());
-                    for x in query_bind_params {
-                        q = bind::bind_param(q, x);
-                    }
-                    q.execute(&mut *tx).await?;
+                    execute_statement(tx, query_string, query_bind_params, do_log).await?;
                 }
             }
             Operation::RenameModel { old, new } => {
@@ -58,15 +50,7 @@ pub async fn migration_to_sql<'a>(
                     .build()?;
 
                 for (query_string, query_bind_params) in statements {
-                    if do_log {
-                        println!("{}", query_string.as_str());
-                    }
-
-                    let mut q = sqlx::query(query_string.as_str());
-                    for x in query_bind_params {
-                        q = bind::bind_param(q, x);
-                    }
-                    q.execute(&mut *tx).await?;
+                    execute_statement(tx, query_string, query_bind_params, do_log).await?;
                 }
             }
             Operation::DeleteModel { name } => {
@@ -76,7 +60,7 @@ pub async fn migration_to_sql<'a>(
                     println!("{}", query_string.as_str());
                 }
 
-                sqlx::query(query_string.as_str()).execute(&mut *tx).await?;
+                tx.execute::<Nothing>(query_string, Vec::new()).await?;
             }
             Operation::CreateField { model, field } => {
                 let statements = db_impl
@@ -94,15 +78,7 @@ pub async fn migration_to_sql<'a>(
                     .build()?;
 
                 for (query_string, query_bind_params) in statements {
-                    if do_log {
-                        println!("{}", query_string.as_str());
-                    }
-
-                    let mut q = sqlx::query(query_string.as_str());
-                    for x in query_bind_params {
-                        q = bind::bind_param(q, x);
-                    }
-                    q.execute(&mut *tx).await?;
+                    execute_statement(tx, query_string, query_bind_params, do_log).await?;
                 }
             }
             Operation::RenameField {
@@ -121,15 +97,7 @@ pub async fn migration_to_sql<'a>(
                     .build()?;
 
                 for (query_string, query_bind_params) in statements {
-                    if do_log {
-                        println!("{}", query_string.as_str());
-                    }
-
-                    let mut q = sqlx::query(query_string.as_str());
-                    for x in query_bind_params {
-                        q = bind::bind_param(q, x);
-                    }
-                    q.execute(&mut *tx).await?;
+                    execute_statement(tx, query_string, query_bind_params, do_log).await?;
                 }
             }
             Operation::DeleteField { model, name } => {
@@ -141,15 +109,7 @@ pub async fn migration_to_sql<'a>(
                     .build()?;
 
                 for (query_string, query_bind_params) in statements {
-                    if do_log {
-                        println!("{}", query_string.as_str());
-                    }
-
-                    let mut q = sqlx::query(query_string.as_str());
-                    for x in query_bind_params {
-                        q = bind::bind_param(q, x);
-                    }
-                    q.execute(&mut *tx).await?;
+                    execute_statement(tx, query_string, query_bind_params, do_log).await?;
                 }
             }
             Operation::RawSQL {
@@ -158,26 +118,29 @@ pub async fn migration_to_sql<'a>(
                 sqlite,
             } => match db_impl {
                 DBImpl::SQLite => {
-                    if do_log {
-                        println!("{sqlite}");
-                    }
-                    sqlx::query(sqlite).execute(&mut *tx).await?;
+                    execute_statement(tx, sqlite.clone(), Vec::new(), do_log).await?;
                 }
                 DBImpl::Postgres => {
-                    if do_log {
-                        println!("{postgres}");
-                    }
-                    sqlx::query(postgres).execute(&mut *tx).await?;
+                    execute_statement(tx, postgres.clone(), Vec::new(), do_log).await?;
                 }
                 DBImpl::MySQL => {
-                    if do_log {
-                        println!("{mysql}");
-                    }
-                    sqlx::query(mysql).execute(&mut *tx).await?;
+                    execute_statement(tx, mysql.clone(), Vec::new(), do_log).await?;
                 }
             },
         }
     }
 
     Ok(())
+}
+
+async fn execute_statement(
+    tx: &mut Transaction,
+    query_string: String,
+    query_bind_params: Vec<Value<'_>>,
+    do_log: bool,
+) -> Result<(), rorm_db::Error> {
+    if do_log {
+        println!("{}", query_string.as_str());
+    }
+    tx.execute::<Nothing>(query_string, query_bind_params).await
 }

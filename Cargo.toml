@@ -23,6 +23,7 @@ path = "src/main.rs"
 # Internal dependencies
 rorm-declaration = { version = "~0.3", path = "../rorm-declaration" }
 rorm-sql = { version = "~0.7", path = "../rorm-sql", features = ["sqlite", "mysql", "postgres"] }
+rorm-db = { version = "0.8.1", path = "../rorm-db" }
 
 # CLI parsing tool
 clap = { version = "~4", features = ["derive"] }
@@ -41,9 +42,6 @@ regex = { version = "~1" }
 # Lazy implementation
 once_cell = { version = "~1" }
 
-# SQL database abstraction
-sqlx = { version = "~0.7", features = ["mysql", "postgres", "sqlite", "any", "chrono"] }
-
 # Runtime
 tokio = { version = ">=1.23.1", features = ["macros"], optional = true }
 
@@ -58,7 +56,10 @@ rpassword = { version = "~7" }
 temp-dir = { version = "~0.1" }
 
 [features]
-default = ["sqlx/runtime-tokio", "dep:tokio"]
+default = [
+    "rorm-db/tokio",
+    "dep:tokio",
+]
 
 [profile.fat-lto]
 inherits = "release"

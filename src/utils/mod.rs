@@ -1,7 +1,6 @@
 use std::io;
 use std::io::Write;
 
-pub mod bind;
 pub mod migrations;
 pub mod re;
 

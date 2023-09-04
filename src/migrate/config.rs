@@ -4,8 +4,7 @@ use std::io::Write;
 use std::path::Path;
 
 use anyhow::Context;
-use rorm_declaration::config::{DatabaseConfig, DatabaseDriver};
-use rorm_sql::DBImpl;
+use rorm_declaration::config::DatabaseConfig;
 use serde::{Deserialize, Serialize};
 
 /**
@@ -15,17 +14,6 @@ Outer wrapper for the database configuration file.
 #[serde(rename_all = "PascalCase")]
 pub struct DatabaseConfigFile {
     pub database: DatabaseConfig,
-}
-
-/**
-Converts the [DatabaseDriver] to [DBImpl]
-*/
-pub(crate) fn convert_db_driver_to_db_impl(v: DatabaseDriver) -> DBImpl {
-    match v {
-        DatabaseDriver::SQLite { .. } => DBImpl::SQLite,
-        DatabaseDriver::Postgres { .. } => DBImpl::Postgres,
-        DatabaseDriver::MySQL { .. } => DBImpl::MySQL,
-    }
 }
 
 const EXAMPLE_DATABASE_CONFIG: &str = r#"
