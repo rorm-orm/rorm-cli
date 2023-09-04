@@ -19,9 +19,7 @@ use crate::utils::migrations::get_existing_migrations;
 pub mod config;
 pub mod sql_builder;
 
-/**
-Options for running migrations
-*/
+/// Options for running migrations
 pub struct MigrateOptions {
     /// Directory, migrations exist in
     pub migration_dir: String,
@@ -36,21 +34,19 @@ pub struct MigrateOptions {
     pub apply_until: Option<u16>,
 }
 
-/**
-Helper method to apply one migration. Writes also to last migration table.
-
-`migration`: [&Migration]: Reference to the migration to apply.
-`pool`: [&SqlitePool]: Pool to apply the migration onto.
-`last_migration_table_name`: [&str]: Name of the table to insert successful applied migrations into.
-*/
+/// Helper method to apply one migration. Writes also to last migration table.
+///
+/// - `migration`: [`&Migration`](Migration): Reference to the migration to apply.
+/// - `db`: [`&Database`](Database): Database to apply the migration onto.
+/// - `last_migration_table_name`: [`&str`]: Name of the table to insert successful applied migrations into.
 pub async fn apply_migration(
     dialect: DBImpl,
     migration: &Migration,
-    pool: &Database,
+    db: &Database,
     last_migration_table_name: &str,
     do_log: bool,
 ) -> anyhow::Result<()> {
-    let mut tx = pool
+    let mut tx = db
         .start_transaction()
         .await
         .with_context(|| format!("Error while starting transaction {}", migration.id))?;
@@ -72,7 +68,7 @@ pub async fn apply_migration(
         println!("{query_string}");
     }
 
-    pool.execute::<Nothing>(query_string, bind_params).await.with_context(|| {
+    db.execute::<Nothing>(query_string, bind_params).await.with_context(|| {
         format!(
             "Error while inserting applied migration {last_migration_table_name} into last migration table",
         )

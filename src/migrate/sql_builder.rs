@@ -7,12 +7,10 @@ use rorm_sql::drop_table::DropTable;
 use rorm_sql::value::Value;
 use rorm_sql::DBImpl;
 
-/**
-Helper method to convert a migration to a transaction string
-
-`db_impl`: [DBImpl]: The database implementation to use.
-`migration`: [&Migration]: Reference to the migration that should be converted.
-*/
+/// Helper method to convert a migration to a transaction string
+///
+/// - `db_impl`: [`DBImpl`]: The database implementation to use.
+/// - `migration`: [`&Migration`](Migration): Reference to the migration that should be converted.
 pub async fn migration_to_sql<'a>(
     tx: &'a mut Transaction,
     db_impl: DBImpl,

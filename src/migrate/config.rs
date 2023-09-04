@@ -7,9 +7,7 @@ use anyhow::Context;
 use rorm_declaration::config::DatabaseConfig;
 use serde::{Deserialize, Serialize};
 
-/**
-Outer wrapper for the database configuration file.
-*/
+/// Outer wrapper for the database configuration file.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "PascalCase")]
 pub struct DatabaseConfigFile {
@@ -61,9 +59,7 @@ mod test {
     }
 }
 
-/**
-Helper method to create a dummy database configuration file
- */
+/// Helper method to create a dummy database configuration file
 pub(crate) fn create_db_config(path: &Path) -> anyhow::Result<()> {
     let fh = File::create(path).with_context(|| format!("Couldn't open {path:?} for writing"))?;
 
@@ -74,11 +70,9 @@ pub(crate) fn create_db_config(path: &Path) -> anyhow::Result<()> {
     Ok(())
 }
 
-/**
-Helper method to deserialize an existing database configuration file
-
-`path`: [&Path]: Path to the configuration file
- */
+/// Helper method to deserialize an existing database configuration file
+///
+/// - `path`: [`&Path`](Path): Path to the configuration file
 pub fn deserialize_db_conf(path: &Path) -> anyhow::Result<DatabaseConfig> {
     let db_conf_toml =
         read_to_string(path).with_context(|| "Couldn't read database configuration file")?;
