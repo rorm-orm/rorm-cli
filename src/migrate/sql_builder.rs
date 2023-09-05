@@ -114,6 +114,7 @@ pub async fn migration_to_sql<'a>(
                 mysql,
                 postgres,
                 sqlite,
+                ..
             } => match db_impl {
                 DBImpl::SQLite => {
                     execute_statement(tx, sqlite.clone(), Vec::new(), do_log).await?;

@@ -11,7 +11,7 @@ pub mod migrate;
 pub mod squash_migrations;
 pub mod utils;
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
     let cli: Cli = Cli::parse();
 

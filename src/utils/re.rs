@@ -9,8 +9,8 @@ pub struct Regexes {
 }
 
 pub static RE: Lazy<Regexes> = Lazy::new(|| Regexes {
-    numeric_only: Regex::new(r#"^\d+$"#).unwrap(),
+    numeric_only: Regex::new(r"^\d+$").unwrap(),
     forbidden_character: Regex::new(r#"[^a-zA-Z0-9_]"#).unwrap(),
-    migration_allowed_comment: Regex::new(r#"^\w+$"#).unwrap(),
-    migration_allowed_name: Regex::new(r#"^[0-9]{4}_\w+\.toml$"#).unwrap(),
+    migration_allowed_comment: Regex::new(r"^\w+$").unwrap(),
+    migration_allowed_name: Regex::new(r"^[0-9]{4}_\w+\.toml$").unwrap(),
 });

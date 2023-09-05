@@ -239,14 +239,21 @@ pub fn convert_migrations_to_internal_models(
                 }
                 Ok(())
             }
-            Operation::RawSQL { .. } => Err(anyhow!(
-                r#"RawSQL migration found!
+            Operation::RawSQL { structure_safe, .. } => {
+                if *structure_safe {
+                    Ok(())
+                } else {
+                    Err(anyhow!(
+                        r#"RawSQL migration without StructureSafe flag found!
 
 Can not proceed to generate migrations as the current database state can not be determined anymore!
 You can still write migrations with all available operations yourself.
 
-To use the make-migrations feature again, delete all RawSQL operations."#
-            )),
+To use the make-migrations feature again, check that all RawSQL operations don't change any 
+structure and mark them as StructureSafe or delete all RawSQL operations."#
+                    ))
+                }
+            }
         })
     });
 
