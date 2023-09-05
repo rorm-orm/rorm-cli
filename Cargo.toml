@@ -57,12 +57,10 @@ temp-dir = { version = "~0.1" }
 
 [features]
 default = [
-    "rorm-db/tokio",
-    "dep:tokio",
+    "tokio",
 ]
 
-[profile.fat-lto]
-inherits = "release"
-opt-level = "s"
-lto = "fat"
-strip = true
+tokio = [
+    "dep:tokio",
+    "rorm-db/tokio",
+]
