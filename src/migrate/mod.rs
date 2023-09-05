@@ -68,7 +68,7 @@ pub async fn apply_migration(
         println!("{query_string}");
     }
 
-    db.execute::<Nothing>(query_string, bind_params).await.with_context(|| {
+    tx.execute::<Nothing>(query_string, bind_params).await.with_context(|| {
         format!(
             "Error while inserting applied migration {last_migration_table_name} into last migration table",
         )
