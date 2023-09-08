@@ -4,7 +4,7 @@ use std::path::Path;
 use anyhow::{anyhow, Context};
 use rorm_db::executor::{Executor, Nothing, Optional};
 use rorm_db::Database;
-use rorm_declaration::config::{DatabaseConfig, DatabaseDriver};
+use rorm_declaration::config::DatabaseConfig;
 use rorm_declaration::imr::{Annotation, DbType};
 use rorm_declaration::migration::Migration;
 use rorm_sql::create_table::CreateTable;
@@ -281,13 +281,6 @@ pub async fn run_migrate(options: MigrateOptions) -> anyhow::Result<()> {
     }
 
     let db_conf = deserialize_db_conf(db_conf_path)?;
-
-    if let DatabaseDriver::SQLite { filename } = &db_conf.driver {
-        if filename.is_empty() {
-            println!("Invalid configuration: Filename for sqlite is empty");
-            return Ok(());
-        }
-    }
 
     run_migrate_custom(
         db_conf,

@@ -8,6 +8,7 @@ use rorm_declaration::config::{DatabaseConfig, DatabaseDriver};
 use crate::entry::InitDriver;
 use crate::migrate::config::DatabaseConfigFile;
 
+/// Create the database configuration file
 pub fn init(database_configuration: String, driver: InitDriver, force: bool) -> anyhow::Result<()> {
     let p = Path::new(&database_configuration);
     if p.exists() && !force {
@@ -16,6 +17,7 @@ pub fn init(database_configuration: String, driver: InitDriver, force: bool) -> 
     }
 
     match driver {
+        #[cfg(feature = "sqlite")]
         InitDriver::Sqlite { filename } => {
             let config_file = DatabaseConfigFile {
                 database: DatabaseConfig {
@@ -31,6 +33,7 @@ pub fn init(database_configuration: String, driver: InitDriver, force: bool) -> 
 
             println!("Configuration was written to {}.", &database_configuration);
         }
+        #[cfg(feature = "mysql")]
         InitDriver::Mysql {
             host,
             port,
@@ -65,6 +68,7 @@ pub fn init(database_configuration: String, driver: InitDriver, force: bool) -> 
 
             println!("Configuration was written to {}.", &database_configuration);
         }
+        #[cfg(feature = "postgres")]
         InitDriver::Postgres {
             host,
             port,

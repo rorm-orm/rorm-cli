@@ -110,18 +110,22 @@ pub async fn migration_to_sql<'a>(
                     execute_statement(tx, query_string, query_bind_params, do_log).await?;
                 }
             }
+            #[allow(unused_variables)]
             Operation::RawSQL {
                 mysql,
                 postgres,
                 sqlite,
                 ..
             } => match db_impl {
+                #[cfg(feature = "sqlite")]
                 DBImpl::SQLite => {
                     execute_statement(tx, sqlite.clone(), Vec::new(), do_log).await?;
                 }
+                #[cfg(feature = "postgres")]
                 DBImpl::Postgres => {
                     execute_statement(tx, postgres.clone(), Vec::new(), do_log).await?;
                 }
+                #[cfg(feature = "mysql")]
                 DBImpl::MySQL => {
                     execute_statement(tx, mysql.clone(), Vec::new(), do_log).await?;
                 }

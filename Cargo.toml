@@ -22,7 +22,7 @@ path = "src/main.rs"
 [dependencies]
 # Internal dependencies
 rorm-declaration = { version = "~0.3", path = "../rorm-declaration" }
-rorm-sql = { version = "~0.7", path = "../rorm-sql", features = ["sqlite", "mysql", "postgres"] }
+rorm-sql = { version = "~0.7", path = "../rorm-sql" }
 rorm-db = { version = "0.8.1", path = "../rorm-db" }
 
 # CLI parsing tool
@@ -58,9 +58,28 @@ temp-dir = { version = "~0.1" }
 [features]
 default = [
     "tokio",
+    "sqlite",
+    "mysql",
+    "postgres",
 ]
 
 tokio = [
     "dep:tokio",
     "rorm-db/tokio",
+]
+
+sqlite = [
+    "rorm-db/sqlite",
+    "rorm-declaration/sqlite",
+    "rorm-sql/sqlite",
+]
+mysql = [
+    "rorm-db/mysql",
+    "rorm-declaration/mysql",
+    "rorm-sql/mysql",
+]
+postgres = [
+    "rorm-db/postgres",
+    "rorm-declaration/postgres",
+    "rorm-sql/postgres",
 ]

@@ -7,6 +7,7 @@ use crate::squash_migrations::squash_migrations;
 
 #[derive(Subcommand)]
 pub enum InitDriver {
+    #[cfg(feature = "sqlite")]
     #[clap(about = "Initialize a sqlite configuration")]
     Sqlite {
         #[clap(long = "filename")]
@@ -14,6 +15,7 @@ pub enum InitDriver {
         #[clap(help = "Name of the sqlite file.")]
         filename: String,
     },
+    #[cfg(feature = "mysql")]
     #[clap(about = "Initialize a mysql configuration")]
     Mysql {
         #[clap(long = "host")]
@@ -43,6 +45,7 @@ pub enum InitDriver {
         #[clap(help = "The name of the database to connect to.")]
         name: String,
     },
+    #[cfg(feature = "postgres")]
     #[clap(about = "Initialize a postgres configuration")]
     Postgres {
         #[clap(long = "host")]
