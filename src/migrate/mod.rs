@@ -109,7 +109,7 @@ pub async fn run_migrate_custom(
         return Ok(());
     }
 
-    let pool = Database::connect(rorm_db::DatabaseConfiguration {
+    let db = Database::connect(rorm_db::DatabaseConfiguration {
         driver: db_conf.driver,
         min_connections: 1,
         max_connections: 1,
@@ -121,7 +121,7 @@ pub async fn run_migrate_custom(
         .as_ref()
         .map_or("_rorm__last_migration", |x| x.as_str());
 
-    let db_impl = (&pool).dialect();
+    let db_impl = (&db).dialect();
     let statements = db_impl
         .create_table(last_migration_table_name)
         .add_column(db_impl.create_column(
@@ -145,7 +145,7 @@ pub async fn run_migrate_custom(
         .if_not_exists()
         .build()?;
 
-    let mut tx = pool
+    let mut tx = db
         .start_transaction()
         .await
         .with_context(|| "Could not create transaction")?;
@@ -164,7 +164,7 @@ pub async fn run_migrate_custom(
         .await
         .with_context(|| "Couldn't create internal last migration table")?;
 
-    let last_migration: Option<i32> = pool
+    let last_migration: Option<i32> = db
         .execute::<Optional>(
             log_sql!(
                 format!(
@@ -185,14 +185,8 @@ pub async fn run_migrate_custom(
         None => {
             // Apply all migrations
             for migration in &existing_migrations {
-                apply_migration(
-                    db_impl,
-                    migration,
-                    &pool,
-                    last_migration_table_name,
-                    log_sql,
-                )
-                .await?;
+                apply_migration(db_impl, migration, &db, last_migration_table_name, log_sql)
+                    .await?;
 
                 if let Some(apply_until) = apply_until {
                     if migration.id == apply_until {
@@ -214,7 +208,7 @@ pub async fn run_migrate_custom(
                         apply_migration(
                             db_impl,
                             migration,
-                            &pool,
+                            &db,
                             last_migration_table_name,
                             log_sql,
                         )
@@ -262,6 +256,7 @@ To correct, empty the {last_migration_table_name} table or reset the whole datab
         }
     }
 
+    db.close().await;
     Ok(())
 }
 
