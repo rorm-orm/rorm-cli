@@ -1,3 +1,5 @@
+Integrated into rorm monorepo
+
 # rorm-cli
 
 ![license](https://img.shields.io/github/license/rorm-orm/rorm-cli?label=License)
